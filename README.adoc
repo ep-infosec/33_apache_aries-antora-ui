@@ -1,0 +1,79 @@
+= {extension}-ui ui bundle extension
+:extension: aries-antora
+:extension-version: 0.0.1
+
+WARNING: This repository contains files derived from the Antora Default UI, which is MPL2.0 licensed.
+Therefore, the contents of this repository must NOT be included in an Apache release.
+See link:
+
+== Description
+
+This ui bundle extension creates the UI bundle for Apache Aries.
+
+== Instructions for Aries site maintenance
+
+The Aries Antora website build uses the packed UI bundle built from these sources.
+For the production build, this packed UI bundle must be available from the git repo accessed as a noe module.
+
+=== Production
+
+After you are satisfied with your local changes, run `gulp` and commit your changes and the modified `build/aries-antora-ui-bundle.zip`, and push to GitHub (or GitBox).
+Aries website builds will now use the modifed UI.
+
+=== Local development
+
+After making changes, run `gulp;yarn pack`.
+This will pack the UI bundle, including both sources and the build bundle, into a .tgz of a node module.
+Modify the `package.json` file in `aries-antora` so the `"@apache-aries/aries-antora-ui"` devDependency points to this file.
+For instance, on my system, this looks like this:
+
+[source,json,subs="+attributes"]
+    "@apache-aries/{extension}-ui": "file:///Users/david/projects/aries/aries-antora-ui/apache-aries-aries-antora-ui-v0.0.1.tgz"
+
+Running `npm run clean-build` will now build the site with the locally modified UI bundle.
+
+== Converting this project to avoid usin `@djencks/antora-ui-builder`
+
+TODO: expand this
+
+For convenience, this project is initially set up to use `@djencks/antora-ui-builder` to extend the Antora default UI.
+If this is determined to be undesirable, it should be easy to turn this into a modified clone of the Antora default UI:
+
+* rename master to something else, such as `builder`.
+* Set the Antora Default UI as a remote.
+* Pull master from the Antora Default UI.
+* Copy the files from the builder branch, src, over the src directory on master.
+
+== Generic Usage
+
+To build a ui bundle based on the antora-ui-default sources with the additions from this extension, run `gulp`.
+
+To combine the UI elements from this extension with other elements, using `@djencks/antora-ui-builder`, include in your antora-ui.yml a clause such as:
+
+[source,yml,subs="+attributes"]
+---
+sources:
+  - path: antora-ui-default #replace or extend as needed
+  - path: @djencks/{extension}-ui
+---
+
+Set up your UI project as a ui builder project and include in the `package.json`
+
+[source,json,subs="+attributes"]
+---
+{
+  "name": "...",
+  "version": "...",
+  "description": "...",
+  "main": "gulpfile.js",
+  "files": [
+    "src/**/*",
+    "build/**/*"
+  ],
+  "devDependencies": {
+    "@djencks/antora-ui-builder": "https://experimental-repo.s3-us-west-1.amazonaws.com/djencks-antora-ui-builder-v0.0.1.tgz",
+    "antora-ui-default": "git+https://gitlab.com/djencks/antora-ui-default.git#issue-126-requireable",
+    "@djencks/{extension}-ui": "https://experimental-repo.s3-us-west-1.amazonaws.com/djencks-{extension}-ui-v{extension-version}.tgz"
+  }
+}
+---
